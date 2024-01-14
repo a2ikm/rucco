@@ -1,0 +1,8 @@
+version: "3.7"
+services:
+  work:
+    build:
+      context: .
+    working_dir: /work
+    volumes:
+      - ".:/work"
