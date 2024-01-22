@@ -33,10 +33,25 @@ fn read_number<'a>(
     source: &'a str,
     source_bytes: &mut Peekable<Enumerate<Bytes<'_>>>,
 ) -> Option<&'a str> {
+    let start: usize;
     let mut len: usize = 0;
 
+    match source_bytes.peek() {
+        Some((i, byte)) => {
+            if byte.is_ascii_digit() {
+                start = *i;
+                len += 1;
+            } else {
+                return None;
+            }
+        }
+        None => return None,
+    }
+
     loop {
-        match source_bytes.next() {
+        source_bytes.next();
+
+        match source_bytes.peek() {
             Some((_, byte)) => {
                 if byte.is_ascii_digit() {
                     len += 1;
@@ -48,5 +63,5 @@ fn read_number<'a>(
         }
     }
 
-    source.get(0..len)
+    source.get(start..(start + len))
 }
