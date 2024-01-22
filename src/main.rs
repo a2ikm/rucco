@@ -11,22 +11,24 @@ fn main() {
         process::exit(1);
     }
 
+    println!(".global main");
+    println!("main:");
+
     let source = &args[1];
     let mut source_bytes = source.bytes().enumerate().peekable();
 
     match read_number(source, &mut source_bytes) {
         Some(number) => {
-            println!(".global main");
-            println!("main:");
-            println!(" mov x8, #93"); // setup exit syscall
             println!(" mov x0, #{}", number);
-            println!(" svc #0"); // invoke syscall
         }
         None => {
             eprintln!("Usage: rucco <exit_code>");
             process::exit(1);
         }
     }
+
+    println!(" mov x8, #93");
+    println!(" svc #0");
 }
 
 fn read_number<'a>(
