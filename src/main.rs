@@ -7,7 +7,7 @@ use std::str::Bytes;
 fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() != 2 {
-        eprintln!("Usage: rucco <exit_code>");
+        eprintln!("Usage: rucco <source>");
         process::exit(1);
     }
 
@@ -22,8 +22,36 @@ fn main() {
             println!(" mov x0, #{}", number);
         }
         None => {
-            eprintln!("Usage: rucco <exit_code>");
+            eprintln!("Usage: rucco <source>");
             process::exit(1);
+        }
+    }
+
+    loop {
+        match source_bytes.next() {
+            Some((_, b'+')) => match read_number(source, &mut source_bytes) {
+                Some(number) => {
+                    println!(" add x0, x0, #{}", number);
+                }
+                None => {
+                    eprintln!("expected number");
+                    process::exit(1);
+                }
+            },
+            Some((_, b'-')) => match read_number(source, &mut source_bytes) {
+                Some(number) => {
+                    println!(" sub x0, x0, #{}", number);
+                }
+                None => {
+                    eprintln!("expected number");
+                    process::exit(1);
+                }
+            },
+            Some((i, _)) => {
+                eprintln!("expected `+` or `-` at #{}", i);
+                process::exit(1);
+            }
+            None => break,
         }
     }
 
