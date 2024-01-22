@@ -8,11 +8,32 @@ fn main() {
         process::exit(1);
     }
 
-    let code = &args[1];
+    let source = &args[1];
+    match read_number(source) {
+        Some(code) => {
+            println!(".global main");
+            println!("main:");
+            println!(" mov x8, #93"); // setup exit syscall
+            println!(" mov x0, #{}", code); // exit code is 42
+            println!(" svc #0"); // invoke syscall
+        }
+        None => {
+            eprintln!("Usage: rucco <exit_code>");
+            process::exit(1);
+        }
+    }
+}
 
-    println!(".global main");
-    println!("main:");
-    println!(" mov x8, #93"); // setup exit syscall
-    println!(" mov x0, #{}", code); // exit code is 42
-    println!(" svc #0"); // invoke syscall
+fn read_number(source: &str) -> Option<&str> {
+    let mut bytes = source.bytes();
+    match bytes.next() {
+        Some(byte) => {
+            if byte.is_ascii_digit() {
+                source.get(0..1)
+            } else {
+                None
+            }
+        }
+        None => None,
+    }
 }
