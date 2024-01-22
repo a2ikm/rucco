@@ -9,7 +9,9 @@ fn main() {
     }
 
     let source = &args[1];
-    match read_number(source) {
+    let mut source_bytes = source.bytes();
+
+    match read_number(source, &mut source_bytes) {
         Some(code) => {
             println!(".global main");
             println!("main:");
@@ -24,12 +26,11 @@ fn main() {
     }
 }
 
-fn read_number(source: &str) -> Option<&str> {
-    let mut bytes = source.bytes();
+fn read_number<'a>(source: &'a str, source_bytes: &mut std::str::Bytes<'_>) -> Option<&'a str> {
     let mut len: usize = 0;
 
     loop {
-        match bytes.next() {
+        match source_bytes.next() {
             Some(byte) => {
                 if byte.is_ascii_digit() {
                     len += 1;
