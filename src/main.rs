@@ -26,14 +26,20 @@ fn main() {
 
 fn read_number(source: &str) -> Option<&str> {
     let mut bytes = source.bytes();
-    match bytes.next() {
-        Some(byte) => {
-            if byte.is_ascii_digit() {
-                source.get(0..1)
-            } else {
-                None
+    let mut len: usize = 0;
+
+    loop {
+        match bytes.next() {
+            Some(byte) => {
+                if byte.is_ascii_digit() {
+                    len += 1;
+                } else {
+                    break;
+                }
             }
+            None => break,
         }
-        None => None,
     }
+
+    source.get(0..len)
 }
