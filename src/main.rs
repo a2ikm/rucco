@@ -15,11 +15,11 @@ fn main() {
     let mut source_bytes = source.bytes().enumerate().peekable();
 
     match read_number(source, &mut source_bytes) {
-        Some(code) => {
+        Some(number) => {
             println!(".global main");
             println!("main:");
             println!(" mov x8, #93"); // setup exit syscall
-            println!(" mov x0, #{}", code); // exit code is 42
+            println!(" mov x0, #{}", number);
             println!(" svc #0"); // invoke syscall
         }
         None => {
