@@ -1,5 +1,8 @@
 use std::env;
+use std::iter::Enumerate;
+use std::iter::Peekable;
 use std::process;
+use std::str::Bytes;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -9,7 +12,7 @@ fn main() {
     }
 
     let source = &args[1];
-    let mut source_bytes = source.bytes();
+    let mut source_bytes = source.bytes().enumerate().peekable();
 
     match read_number(source, &mut source_bytes) {
         Some(code) => {
@@ -26,12 +29,15 @@ fn main() {
     }
 }
 
-fn read_number<'a>(source: &'a str, source_bytes: &mut std::str::Bytes<'_>) -> Option<&'a str> {
+fn read_number<'a>(
+    source: &'a str,
+    source_bytes: &mut Peekable<Enumerate<Bytes<'_>>>,
+) -> Option<&'a str> {
     let mut len: usize = 0;
 
     loop {
         match source_bytes.next() {
-            Some(byte) => {
+            Some((_, byte)) => {
                 if byte.is_ascii_digit() {
                     len += 1;
                 } else {
