@@ -21,5 +21,6 @@ assert 0 0
 assert 42 42
 assert 3 "1+2"
 assert 233 "0+11+222"
+assert 100 "123-23"
 
 echo OK
