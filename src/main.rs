@@ -18,11 +18,11 @@ fn main() {
     let mut source_bytes = source.bytes().enumerate().peekable();
 
     match read_number(source, &mut source_bytes) {
-        Some(number) => {
+        Ok(number) => {
             println!(" mov x0, #{}", number);
         }
-        None => {
-            eprintln!("Usage: rucco <source>");
+        Err(e) => {
+            eprintln!("{}", e);
             process::exit(1);
         }
     }
@@ -30,20 +30,20 @@ fn main() {
     loop {
         match source_bytes.next() {
             Some((_, b'+')) => match read_number(source, &mut source_bytes) {
-                Some(number) => {
+                Ok(number) => {
                     println!(" add x0, x0, #{}", number);
                 }
-                None => {
-                    eprintln!("expected number");
+                Err(e) => {
+                    eprintln!("{}", e);
                     process::exit(1);
                 }
             },
             Some((_, b'-')) => match read_number(source, &mut source_bytes) {
-                Some(number) => {
+                Ok(number) => {
                     println!(" sub x0, x0, #{}", number);
                 }
-                None => {
-                    eprintln!("expected number");
+                Err(e) => {
+                    eprintln!("{}", e);
                     process::exit(1);
                 }
             },
@@ -62,7 +62,7 @@ fn main() {
 fn read_number<'a>(
     source: &'a str,
     source_bytes: &mut Peekable<Enumerate<Bytes<'_>>>,
-) -> Option<&'a str> {
+) -> Result<&'a str, String> {
     let start: usize;
     let mut len: usize = 0;
 
@@ -72,10 +72,13 @@ fn read_number<'a>(
                 start = *i;
                 len += 1;
             } else {
-                return None;
+                return Err(format!(
+                    "expected ASCII digit but got `{}` at column {}",
+                    byte, i
+                ));
             }
         }
-        None => return None,
+        None => return Err(format!("expected ASCII digit but no character")),
     }
 
     loop {
@@ -93,5 +96,12 @@ fn read_number<'a>(
         }
     }
 
-    source.get(start..(start + len))
+    match source.get(start..(start + len)) {
+        Some(number) => Ok(number),
+        None => Err(format!(
+            "failed to read between column {} and column {}",
+            start,
+            start + len
+        )),
+    }
 }
